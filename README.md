@@ -1,1 +1,3 @@
-# Guess what I got a domain niggers
+# I will put something up here well when I get time after properly studying HTML and maybe a bit of CSS who knows.
+for now I honestly don't know what to do with this domain so.... 
+-----peace out
