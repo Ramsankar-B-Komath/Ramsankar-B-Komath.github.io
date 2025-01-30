@@ -12,6 +12,9 @@
             margin: 0;
             padding: 0;
             overflow: hidden;
+            position: relative;
+            height: 100vh;
+            width: 100vw;
         }
         .container {
             position: absolute;
@@ -60,10 +63,6 @@
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            document.body.style.display = "block";
-        });
-
         function checkPassword() {
             let password = document.getElementById("password-input").value;
             if (password === "16042007") {
@@ -91,4 +90,3 @@
     </script>
 </body>
 </html>
-
