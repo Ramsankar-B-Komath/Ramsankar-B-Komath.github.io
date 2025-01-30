@@ -11,6 +11,7 @@
             text-align: center;
             margin: 0;
             padding: 0;
+            overflow: hidden;
         }
         .container {
             position: absolute;
@@ -59,6 +60,10 @@
     </div>
 
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.body.style.display = "block";
+        });
+
         function checkPassword() {
             let password = document.getElementById("password-input").value;
             if (password === "16042007") {
@@ -71,8 +76,10 @@
 
         function moveNoButton() {
             let noBtn = document.getElementById("no-btn");
-            let x = Math.random() * (window.innerWidth - 100);
-            let y = Math.random() * (window.innerHeight - 50);
+            let maxX = window.innerWidth - noBtn.offsetWidth - 20;
+            let maxY = window.innerHeight - noBtn.offsetHeight - 20;
+            let x = Math.random() * maxX;
+            let y = Math.random() * maxY;
             noBtn.style.left = x + "px";
             noBtn.style.top = y + "px";
         }
@@ -84,3 +91,4 @@
     </script>
 </body>
 </html>
+
