@@ -1,122 +1,1365 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Valentine's Surprise</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: pink;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            position: relative;
-            height: 100vh;
-            width: 100vw;
-        }
-        .container {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-        .hidden {
-            display: none;
-        }
-        .btn {
-            padding: 10px 20px;
-            font-size: 18px;
-            border: none;
-            cursor: pointer;
-            margin: 10px;
-            border-radius: 5px;
-        }
-        .yes-btn {
-            background-color: red;
-            color: white;
-            animation: heartbeat 1s infinite;
-        }
-        .no-btn {
-            background-color: gray;
-            color: white;
-        }
-        @keyframes heartbeat {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-        #custom-message {
-            font-size: 18px;
-            color: darkred;
-            max-width: 80%;
-            margin: 20px auto;
-            white-space: pre-wrap;
-            text-align: center;
-        }
-    </style>
-</head>
-<body>
-    <div id="password-page" class="container">
-        <h2>Enter the Secret Password</h2>
-        <input type="password" id="password-input" placeholder="Password">
-        <button class="btn" onclick="checkPassword()">Submit</button>
-    </div>
+from tkinter import *
+from tkinter import messagebox
+from tkinter import ttk
+import csv
+import pickle as p
 
-    <div id="valentine-page" class="container hidden">
-        <h2>Will you be my Valentine?</h2>
-        <button class="btn yes-btn" onclick="showLove()">Yes</button>
-        <button class="btn no-btn" onclick="changeNoButton()" id="no-btn">No</button>
-    </div>
+#   <<<<<<<<<<  Start Up Page >>>>>>>>>>>> #
 
-    <div id="result-page" class="container hidden">
-        <h2>Yay! You're my Valentine! ❤️</h2>
-        <p style="font-size: 20px; color: white; background: red; display: inline-block; padding: 10px; border-radius: 10px;">Love You bbg 💕</p>
-        <div id="custom-message"></div>
-    </div>
+def Start_Up ():
 
-    <script>
-        function checkPassword() {
-            let password = document.getElementById("password-input").value;
-            if (password === "16042007") {
-                document.getElementById("password-page").classList.add("hidden");
-                document.getElementById("valentine-page").classList.remove("hidden");
-            } else {
-                alert("Wrong password! Try again.");
-            }
-        }
+    global start_up
 
-        function changeNoButton() {
-            let noBtn = document.getElementById("no-btn");
-            if (noBtn.textContent === "No") {
-                noBtn.textContent = "Are you sure? 🥺";
-            } else if (noBtn.textContent === "Are you sure? 🥺") {
-                noBtn.textContent = "Think again... 💔";
-            } else {
-                noBtn.style.display = "none";
-            }
-        }
+    start_up=Tk()
 
-        function showLove() {
-            document.getElementById("valentine-page").classList.add("hidden");
-            document.getElementById("result-page").classList.remove("hidden");
-            typeMessage("custom-message", "Hey so i have no idea what to say here so imma just talk to you in class and hope that doesnt turn out awkward, well lets hope not all i wanna say is ..... Happy Valentines Day :)");
-        }
+    start_up.state('zoomed')
+    start_up.title("Login")
+    start_up.config(bg="Black")    
+    logo=PhotoImage(file='Logo.png')
+    Admin=PhotoImage(file='quizmaster_icon.png')
+    User=PhotoImage(file='player_icon.png')
+    background_img=PhotoImage(file='start_up_page.png')
+    start_up.iconphoto(True,logo)
 
-        function typeMessage(elementId, message) {
-            let element = document.getElementById(elementId);
-            element.textContent = ""; 
-            let index = 0;
-            function type() {
-                if (index < message.length) {
-                    element.textContent += message.charAt(index);
-                    index++;
-                    setTimeout(type, 50);
-                }
-            }
-            type();
-        }
-    </script>
-</body>
-</html>
+    bg_canvas=Canvas(start_up,width=1920,
+                    height=1100,bg='black')
+    bg_canvas.pack(fill='both',expand=True)
+
+    bg_canvas.create_image(0,0,image=background_img,anchor='nw')
+
+    Button(start_up,text='Player',font=('calibri',24),
+            image=User,compound=TOP,
+            fg='white',bg='black',
+            relief=FLAT,
+            activeforeground='white',activebackground='black',
+            command=Login_Page).place(x=930,y=340)
+    
+    Button(start_up,text='Admin',font=('calibri',24),
+            image=Admin,compound=TOP,
+            fg='white',bg='black',
+            relief=FLAT,
+            activeforeground='white',activebackground='black',
+            command=Login_Page).place(x=1200,y=340)
+    
+    
+    Button(start_up,text='Sign Up',font=('calibri',24),
+            padx=20,pady=5,fg='white',bg='black',
+            activeforeground='white',activebackground='black',
+            command=Sign_Up_Page).place(x=1123,y=698)
+
+    Button(start_up,text='Bye-Bye',font=('gabriola',20),
+                padx=10,fg='white',bg='black',
+                activeforeground='white',activebackground='black',
+                relief=SUNKEN,bd=5,command=start_up.destroy).place(x=1410,y=699)
+
+    start_up.mainloop()
+
+#   <<<<<<<<<<  Login Page >>>>>>>>>>>> #
+
+def Login_Page():
+    '''Creates the Login page Interface'''
+
+    global start_up,name
+
+    login=Toplevel()
+
+    def Login ():
+        '''This function checks whether username and passwword are already registered'''
+
+        global name
+
+        name=username.get().rstrip()
+        key=password.get().rstrip()
+
+        with open ('Users.dat','rb') as f:
+
+            while True:
+                try:
+                    data=p.load(f)
+                    if data[0] == name and data[1] == key:
+                        
+                        if name == 'Admin' and key == 'Almighty':
+                    
+                            start_up.destroy()
+                            QuizMaster_Home_Page()
+                            break
+                        else:
+                            
+                            start_up.destroy()
+                            Player_Home_Page()
+                            break
+                    
+                except:
+                    messagebox.showerror(title="Invalid username/password",
+                                             message="Wrong username or password Try again!")
+                    login.deiconify()
+                    break
+
+        return name
+
+    login.state('zoomed')
+    login.title("Login")
+    login.config(bg="Black")    
+    brand=PhotoImage(file='Brand.png')
+
+    label=Label(login,
+                image=brand,
+                fg='White',bg="Black")
+
+    label.pack()
+
+    label_1=Label(login,text="Username",font=('arial',30),fg='White',bg="Black")
+    label_2=Label(login,text="Password",font=('arial',30),fg='White',bg="Black")
+    username=Entry(login,font=("arial",25),fg='white',bg='black')
+    password=Entry(login,font=("arial",25),fg='white',bg='black',show='*')
+
+    label_1.pack()
+    username.pack(pady=25)
+    label_2.pack()
+    password.pack(pady=25)
+
+    frame=Frame(bg='black')
+
+    button1=Button(login,text='Login',font=('comic sans',20),
+                padx=20,pady=5,fg='white',bg='black',
+                activeforeground='white',activebackground='black',
+                relief=RAISED,bd=5,command=Login)
+    
+    button3=Button(login,text='Bye-Bye',font=('gabriola',20),
+                padx=10,fg='white',bg='black',
+                activeforeground='white',activebackground='black',
+                relief=SUNKEN,bd=5,command=login.destroy)
+
+    button1.pack(pady=20)
+    frame.pack(side=BOTTOM)
+    button3.place(x=1410,y=710)
+    
+
+    login.mainloop()
+
+#   <<<<<<<<<<  Sign-Up Page >>>>>>>>>>>> #
+
+def Sign_Up_Page():
+    '''The Sign-up Page Interface'''
+    
+    sign_up=Toplevel()
+    
+    def Register ():
+        '''Adds the username and password of users to a binary file'''
+        
+        name=username.get().rstrip()
+        key=password.get().rstrip()
+
+        with open ('Users.dat','ab') as f:
+
+            if name != '' or key != '' :
+
+                p.dump([name,key],f)
+                messagebox.showinfo(title='success',message='You will be directed to the login page\n\
+                                    Please login to continue.')
+                sign_up.destroy()
+                
+            else:
+                messagebox.showwarning(title="Fill the boxes",
+                                       message="Please fill the required boxes!")
+                sign_up.deiconify()
+
+        with open ('Scoresheet.csv','r',newline="") as f :
+
+            data=[]
+            L=[]
+
+            reader=csv.reader(f)
+
+            for rows in reader:
+
+                data.append(rows)
+                num_col=0
+
+                for columns in rows:
+
+                    num_col+=1
+
+            for index in range (num_col):
+
+                if index == 0:
+
+                    L.append(name)
+
+                else:
+
+                    L.append(None)
+
+            data.append(L)
+
+        with open ('Scoresheet.csv','w',newline="") as f:
+
+            writer=csv.writer(f)
+            writer.writerows(data)
+
+    sign_up.state('zoomed')
+    sign_up.title("Sign-up")
+    sign_up.config(bg="Black")    
+    brand=PhotoImage(file='Brand.png')
+
+    label=Label(sign_up,
+                image=brand,
+                fg='White',bg="Black")
+
+    label.pack()
+
+    label_1=Label(sign_up,text="Username",font=('arial',30),fg='White',bg="Black")
+    label_2=Label(sign_up,text="Password",font=('arial',30),fg='White',bg="Black")
+    username=Entry(sign_up,font=("arial",25),fg='white',bg='black')
+    password=Entry(sign_up,font=("arial",25),fg='white',bg='black',show='*')
+
+    label_1.pack()
+    username.pack(pady=25)
+    label_2.pack()
+    password.pack(pady=25)
+
+    Button(sign_up,text='Register',font=('comic sans',20),
+                padx=20,pady=5,fg='white',bg='black',
+                activeforeground='white',activebackground='black',
+                relief=RAISED,bd=10,command=Register).pack(pady=10)
+    
+    Button(sign_up,text='Back',font=('comic sans',20),
+                padx=20,pady=5,fg='white',bg='black',
+                activeforeground='white',activebackground='black',
+                relief=RAISED,bd=10,command=sign_up.destroy).pack(pady=20)
+ 
+    sign_up.mainloop()
+
+#   <<<<<<<<<<  Player Page >>>>>>>>>>>> #
+
+def Player_Home_Page ():
+    '''Player Home Page Interface'''
+    
+    player_home_page=Tk()
+
+    def play ():
+
+        select_category=Toplevel(player_home_page)
+
+        def start_game ():
+
+            global count,SCORE,Submitted_Questions,Submit
+
+            count=0
+            SCORE=0 #Score variable
+            Submitted_Questions=[]
+
+
+            select_category.withdraw()
+            
+            game=Toplevel(select_category)
+            game.state('zoomed')
+            game.title("Neural Nexus")
+            game.config(bg="Black")
+
+            choosen_category=category_box.get(category_box.curselection())
+
+            def Load_Questions (sign):
+
+                global count,SCORE,Submitted_Questions,Submit
+
+                '''Loads the questions'''
+
+                Neural_nexus=Toplevel(game)
+                Neural_nexus.state('zoomed')
+                Neural_nexus.title("Neural Nexus")
+                Neural_nexus.config(bg="Black")
+                
+
+                if sign == "+":
+
+                    count+=1
+
+                elif sign == "-":
+
+                    if count == 0:
+
+                        pass
+
+                    else:
+
+                        count-=1
+
+                else:
+
+                    pass
+                
+                with open ('Quiz.dat','rb') as f:
+
+                    x=0 #count variable
+        
+                    while True:
+                            
+                        try:
+
+                            data=p.load(f)
+
+                            for Key,Value in data.items():
+                                
+                                if choosen_category==Key:
+
+                                    x+=1
+
+                                    break
+
+                            if x!=0:
+
+                                break
+
+                        except  :
+
+                            messagebox.showerror(message='LOL') 
+
+                    if count < len(Value):
+
+                        Label(Neural_nexus,text='Question : ' + Value[count]['Question'],font=('arial',36),
+                                                                fg='light blue',bg="Black").place(x=20,y=80)
+                        
+                        frame2=Frame(Neural_nexus,background='black')
+
+                        ans=StringVar()
+
+                        Option_1=Radiobutton(frame2,text=Value[count]['Option'][0],pady=15,bg='black',fg='blue',activebackground='black',activeforeground='red',font=('arial',36),value=Value[count]['Option'][0],variable=ans)
+                        Option_2=Radiobutton(frame2,text=Value[count]['Option'][1],pady=15,bg='black',fg='blue',activebackground='black',activeforeground='red',font=('arial',36),value=Value[count]['Option'][1],variable=ans)
+                        Option_3=Radiobutton(frame2,text=Value[count]['Option'][2],pady=15,bg='black',fg='blue',activebackground='black',activeforeground='red',font=('arial',36),value=Value[count]['Option'][2],variable=ans)
+                        Option_4=Radiobutton(frame2,text=Value[count]['Option'][3],pady=15,bg='black',fg='blue',activebackground='black',activeforeground='red',font=('arial',36),value=Value[count]['Option'][3],variable=ans)
+                        
+                        Option_1.pack(pady=5)
+                        Option_2.pack(pady=5)
+                        Option_3.pack(pady=5)
+                        Option_4.pack(pady=5)
+
+                        if count in Submitted_Questions:
+
+                            Option_1.config(state=DISABLED)
+                            Option_2.config(state=DISABLED)
+                            Option_3.config(state=DISABLED)
+                            Option_4.config(state=DISABLED)
+                            
+
+                        frame2.place(x=180,y=200)
+
+                        def Submit ():
+
+                            global SCORE
+
+                            if ans.get() == Value[count]['Option'][4]:
+
+                                SCORE+=1
+                                messagebox.showinfo(title='Done',message='Answer Accpeted Please move on to the next question')
+                                Option_1.config(state=DISABLED)
+                                Option_2.config(state=DISABLED)
+                                Option_3.config(state=DISABLED)
+                                Option_4.config(state=DISABLED)
+                                Submitted_Questions.append(count)
+                                Neural_nexus.deiconify()
+
+
+                            elif ans.get() == '': 
+
+                                messagebox.showerror(title='Error',message='Please select an answer to proceed')
+                                Neural_nexus.deiconify()
+
+                            else:
+
+                                messagebox.showinfo(title='Done',message='Answer Accpeted Please move on to the next question')
+                                Option_1.config(state=DISABLED)
+                                Option_2.config(state=DISABLED)
+                                Option_3.config(state=DISABLED)
+                                Option_4.config(state=DISABLED)
+                                Submitted_Questions.append(count)
+                                Neural_nexus.deiconify()
+                            
+                    else:
+
+                        if len(Submitted_Questions) == count:
+
+                            select_category.destroy()
+                            messagebox.showinfo(title='Success',message='Hooray you completed the quiz\nYour score is : '+str(SCORE)+'/'+str(count))
+
+                            with open('Scoresheet.csv', 'r', newline="") as f:
+
+                                L = list(csv.reader(f))
+
+                            row_no = 0
+                            for cat in L[0]: 
+                                if cat == choosen_category:
+                                    break
+                                row_no += 1
+
+                            for row in range(1, len(L)):  
+                                if L[row][0] == name:
+                                    L[row][row_no] =str(SCORE)+'/'+str(count)
+                                    break
+
+                            with open('Scoresheet.csv', 'w', newline="") as f:
+
+                                writer = csv.writer(f)
+                                writer.writerows(L)
+
+                        else:
+                            messagebox.showerror(title='Error',message='Please answer all questions to proceed')
+                            Load_Questions("-")
+                                    
+                frame1=Frame(Neural_nexus,bg='black',width=900)
+
+                frame1.place(x=520,y=710)
+
+                Button(frame1,text='Next',font=('arial',28),
+                            padx=20,pady=5,fg='white',bg='black',
+                            activeforeground='white',activebackground='black',
+                            relief=RAISED,bd=10,command=lambda:Load_Questions("+")).grid(row=1,column=300)
+                
+                Button(frame1,text='Submit',font=('arial',28),
+                            padx=20,pady=5,fg='white',bg='black',
+                            activeforeground='white',activebackground='black',
+                            relief=RAISED,bd=10,command=Submit).grid(row=1,column=200)
+
+                Button(frame1,text='Back',font=('arial',28),
+                        padx=20,pady=5,fg='white',bg='black',
+                        activeforeground='white',activebackground='black',
+                        relief=RAISED,bd=10,command=lambda:Load_Questions("-")).grid(row=1,column=100)
+            
+            Label(game,text=choosen_category,font=('impact',69),bg='black',fg='white').pack(pady=50)
+
+            Button(game,text='Click to start',font=('arial',28),
+                            padx=20,pady=5,fg='white',bg='black',
+                            activeforeground='white',activebackground='black',
+                            relief=RAISED,bd=10,command=lambda:Load_Questions("0")).pack(pady=100)
+
+            game.mainloop()
+
+        select_category.state('zoomed')
+        select_category.title("Select Category")
+        select_category.config(bg="Black")
+
+        Label(select_category,text="Select your desired Category",
+                    font=('Impact',54),
+                    fg='White',bg="Black").pack(pady=69)
+
+        with open ('Category_list','r') as f:
+             
+            data=f.readlines()
+
+        category_box=Listbox(select_category,bg='#f7ffde',
+                            font=('Bahnschrift SemiLight',36))
+        category_box.pack()
+        category_box.config(height=category_box.size())
+        
+
+        for index in range (len(data)):
+             
+            category_box.insert(index+1,data[index].rstrip('\n'))    
+            category_box.config(height=category_box.size())    
+    
+        frame=Frame(select_category,bg='black')
+
+        frame.place(x=60,y=710)
+
+        Button(frame,text='Start Game',font=('arial',28),
+                    padx=20,pady=5,fg='white',bg='black',
+                    activeforeground='white',activebackground='black',
+                    relief=RAISED,bd=10,command=start_game).pack(padx=300,side=RIGHT)
+
+        Button(frame,text='Back',font=('arial',28),
+                    padx=20,pady=5,fg='white',bg='black',
+                    activeforeground='white',activebackground='black',
+                    relief=RAISED,bd=10,command=select_category.destroy).pack(padx=250,side=LEFT)
+        
+        select_category.mainloop()    
+
+    def rules ():
+        '''Takes the user to a rule page'''
+
+        RulePage=Toplevel()
+    
+        def back():
+            '''Returns the user to the homepage'''
+
+            RulePage.destroy()
+            player_home_page.deiconify()
+
+        RulePage.state('zoomed')
+        RulePage.title("Rules")
+        RulePage.config(bg="Black")
+
+        label=Label(RulePage,text="RULES",font=('impact',100,'bold'),
+                    fg='light blue',bg="Black",pady=50)
+        label1=Label(RulePage,text="1.Play Fair\n2.Each question is compulsory\n\
+        3.Each question has a single correct answer.\n4.Enjoy your Quizzing Experiance",
+                            font=('arial',50),pady=40,fg='light blue',bg="Black") 
+        label.pack()
+        label1.pack(pady=10)
+
+        button=Button(RulePage,text='Back',font=('arial',28),
+                    padx=20,pady=5,fg='white',bg='black',
+                    activeforeground='white',activebackground='black',
+                    relief=RAISED,bd=10,command=back)
+        
+        button.pack()
+        RulePage.mainloop()
+
+    def logout ():
+        '''Logs the user out of the program'''
+
+        player_home_page.destroy()
+        Start_Up()
+
+    player_home_page.state('zoomed')
+    player_home_page.title("Home Page")
+    player_home_page.config(bg="Black")    
+    logo=PhotoImage(file='Logo.png')
+    Full_Logo=PhotoImage(file='Full_logo.png')
+    player_home_page.iconphoto(True,logo)
+
+    label=Label(player_home_page,font=('arial',50,'bold'),
+                image=Full_Logo,compound='bottom',
+                fg='White',bg="Black")
+    
+    label.pack(pady=20)
+
+    button1=Button(player_home_page,text='Play',font=('arial',28),
+                padx=108,pady=5,fg='white',bg='black',
+                activeforeground='white',activebackground='black',
+                relief=RAISED,bd=10,command=play)
+    button2=Button(player_home_page,text='Rules',font=('arial',28),
+                padx=97,pady=5,fg='white',bg='black',
+                activeforeground='white',activebackground='black',
+                relief=RAISED,bd=10,command=rules)
+    button3=Button(player_home_page,text='Logout',font=('arial',28),
+                padx=86,pady=5,fg='white',bg='black',
+                activeforeground='white',activebackground='black',
+                relief=RAISED,bd=10,command=logout)
+    
+    button1.pack(pady=15)
+    button2.pack(pady=15)
+    button3.pack(pady=15)
+
+    player_home_page.mainloop()
+
+#   <<<<<<<<<<  Admin Page >>>>>>>>>>>> #
+
+def QuizMaster_Home_Page ():
+    '''Creates the Quiz Master Interface'''
+
+    quizmaster_home_page=Tk()
+
+    def Create ():
+        '''Takes the QuizMaster to a page where he has to enter the category name further direct the user to input the data'''
+        global c
+        category=Toplevel(quizmaster_home_page)
+        c=0
+        Questions_Options=[]
+
+        def next_page ():
+            '''Takes the QuizMaster to the input pages where he has to enter the questions options and correct answer'''
+            global c
+            Category1=Category.get()
+
+            def save ():
+                '''Adds the data inputed by QuizMaster into a secondary dictionary containing only the question, options and correct answer'''
+                
+                Correct_Option=''
+                Question=question.get()
+                Option1=option1.get()
+                Option2=option2.get()
+                Option3=option3.get()
+                Option4=option4.get()
+
+                if chk1.get() == 1:
+                       
+                    Correct_Option=option1.get()
+
+                elif chk2.get() == 1:
+                       
+                    Correct_Option=option2.get()
+
+                elif chk3.get() == 1:
+                       
+                    Correct_Option=option3.get()
+
+                elif chk4.get() == 1:
+                       
+                    Correct_Option=option4.get()
+
+                else:
+                       
+                    messagebox.showerror(title="ERROR",message="Please fill in all the data !!!")
+                    add_data.deiconify()
+
+                if Question  == '' or Option1  == '' or Option2  == '' or Option3 == '' or Option4 == '' or Correct_Option=='':
+                    
+                    messagebox.showerror(title="ERROR",message="Please fill in all the data !!!")
+                    add_data.deiconify()
+
+                else:
+                    Questions_Options.append({"Question":Question,"Option":[Option1,Option2,Option3,Option4,Correct_Option]})
+                    messagebox.showinfo(title="Success",message="Data saved successfully")
+                    add_data.deiconify()
+
+            def exit ():
+                    '''Dict made earlier is assigned as the value of the main dictionary with key as a category name as key and then dumps it to a binary diles'''
+
+                    with open ('Quiz.dat','ab') as f:
+            
+                            p.dump({Category1:Questions_Options},f)
+
+                    with open ('Category_list','a') as f:
+                        f.write(Category1+'\n')
+
+                    category.destroy()
+
+            if Category1 != '' :
+            
+                add_data=Toplevel(category)
+                
+                add_data.state('zoomed')
+                add_data.title("Enter Question and Answers")
+                add_data.config(bg="Black")   
+                Label(add_data,text="Enter Question",
+                        font=('comic sans',35,'bold'),
+                        fg='White',bg="Black").pack(pady=25)
+                                        
+                question=Entry(add_data,font=("arial",25),fg='white',bg='black')
+                question.pack(pady=20)
+
+                Label(add_data,text="Enter Options",
+                        font=('comic sans',35,'bold'),
+                        fg='White',bg="Black").pack(pady=15)
+                                
+                frame_options=Frame(add_data,width=800,bg='black')
+                                        
+                option1=Entry(frame_options,font=("arial",25),fg='white',bg='black')
+                option2=Entry(frame_options,font=("arial",25),fg='white',bg='black')
+                option3=Entry(frame_options,font=("arial",25),fg='white',bg='black')
+                option4=Entry(frame_options,font=("arial",25),fg='white',bg='black')
+
+                chk1=IntVar()
+                chk2=IntVar()
+                chk3=IntVar()
+                chk4=IntVar()
+
+                option1_chk=Checkbutton(frame_options,font=("arial",25),bg='black',variable=chk1,onvalue=1,offvalue=0)
+                option2_chk=Checkbutton(frame_options,font=("arial",25),bg='black',variable=chk2,onvalue=1,offvalue=0)
+                option3_chk=Checkbutton(frame_options,font=("arial",25),bg='black',variable=chk3,onvalue=1,offvalue=0)
+                option4_chk=Checkbutton(frame_options,font=("arial",25),bg='black',variable=chk4,onvalue=1,offvalue=0)
+
+                option1.grid(row=1,columnspan=20,column=2,padx=10,pady=10)
+                option2.grid(row=2,columnspan=20,column=2,padx=10,pady=10)
+                option3.grid(row=3,columnspan=20,column=2,padx=10,pady=10)
+                option4.grid(row=4,columnspan=20,column=2,padx=10,pady=10)
+
+                option1_chk.grid(row=1,columnspan=120,column=40)
+                option2_chk.grid(row=2,columnspan=120,column=40)
+                option3_chk.grid(row=3,columnspan=120,column=40)
+                option4_chk.grid(row=4,columnspan=120,column=40)
+
+
+
+                frame_options.pack(pady=25)
+
+
+                frame=Frame(add_data,bg='black',width=300)
+                frame.pack(pady=50)
+
+
+                Button(frame,text='Next Page',font=('comic sans',20),
+                                padx=20,pady=5,fg='white',bg='black',
+                                activeforeground='white',activebackground='black',
+                                relief=RAISED,bd=10,command=next_page).pack(side=RIGHT,padx=100)
+                        
+                save_button=Button(frame,text='Save',font=('comic sans',20),
+                                padx=20,pady=5,fg='white',bg='black',
+                                activeforeground='white',activebackground='black',
+                                relief=RAISED,bd=10,command=save)
+                save_button.pack(side=RIGHT,padx=100)
+                        
+                Button(frame,text='Exit',font=('comic sans',20),
+                                padx=20,pady=5,fg='white',bg='black',
+                                activeforeground='white',activebackground='black',
+                                relief=RAISED,bd=10,command=exit).pack(side=LEFT,padx=100)
+                
+                if c == 0:
+
+                    with open ('Scoresheet.csv','r',newline="") as f :
+
+                        L=[] 
+                        chk=True  
+
+                        reader=csv.reader(f) 
+
+                        for rows in reader: 
+
+                            if chk == True: 
+
+                                rows.append(Category1)
+
+                                L.append(rows) 
+
+                                chk=False 
+
+                            else:
+
+                                rows.append(None) 
+                                L.append(rows) 
+
+                    with open ('Scoresheet.csv','w',newline="") as f:
+
+                        writer=csv.writer(f)
+                        writer.writerows(L) 
+                        c+=1   
+                
+                add_data.mainloop()
+
+            else:
+             
+             messagebox.showerror(title="ERROR",message="Please enter your category!")
+             category.deiconify()
+
+        category.state('zoomed')
+        category.title("category")
+        category.config(bg="Black")    
+
+        Label(category,text="Enter Category",
+                        font=('comic sans',74,'bold'),
+                        fg='White',bg="Black").pack(pady=30)      
+
+        Category=Entry(category,font=("arial",25),fg='white',bg='black')
+
+        Category.pack(pady=30)
+
+
+        Button(category,text='Start',font=('comic sans',20),
+                        padx=20,pady=5,fg='white',bg='black',
+                        activeforeground='white',activebackground='black',
+                        relief=RAISED,bd=10,command=next_page).pack()
+            
+        Label(category,text="You must enter 10 questions along with options and checkbox\n\
+            the correct option then click on save then next page to enter more data.\n\
+    Once all the data is inputed click on exit if not \n\
+    DATA WILL NOT BE SAVED",
+                        font=('arial',30),
+                        fg='White',bg="Black").pack(pady=100)
+            
+        Button(category,text='Back',font=('comic sans',20),
+                        padx=20,pady=5,fg='white',bg='black',
+                        activeforeground='white',activebackground='black',
+                        relief=RAISED,bd=10,command=category.destroy).pack()
+
+        category.mainloop()
+
+    def Edit ():
+        '''Takes user to a page where he can edit all the questions or the category name'''
+
+        edit_page=Toplevel()
+
+        def Edit_questions ():
+            '''Takes user to a page where he has to enter the old and new name of the category to edit'''
+
+            edit_questions=Toplevel()
+            Questions_Options=[]
+
+            def change ():
+                '''Creates the page where QuizMaster has to enter the category name to edit the questions '''
+
+
+                def load_questions_edit ():
+                    '''Creates the page to enter the new edited questions '''
+
+                    load_questions_page=Toplevel()
+
+                    def next_page ():
+                        '''Takes the QuizMaster to the input pages where he has to enter the questions options and correct answer'''
+
+                        def save ():
+                            '''Adds the data inputed by QuizMaster into a secondary dictionary containing only the question, options and correct answer'''
+                
+                            Correct_Option=''
+                            Question=question.get()
+                            Option1=option1.get()
+                            Option2=option2.get()
+                            Option3=option3.get()
+                            Option4=option4.get()
+
+                            if chk1.get() == 1:
+                                
+                                Correct_Option=option1.get()
+
+                            elif chk2.get() == 1:
+                                
+                                Correct_Option=option2.get()
+
+                            elif chk3.get() == 1:
+                                
+                                Correct_Option=option3.get()
+
+                            elif chk4.get() == 1:
+                                
+                                Correct_Option=option4.get()
+
+                            else:
+                                
+                                messagebox.showerror(title="ERROR",message="Please fill in all the data !!!")
+                                add_data.deiconify()
+
+                            if Question  == '' or Option1  == '' or Option2  == '' or Option3 == '' or Option4 == '' or Correct_Option=='':
+                                
+                                messagebox.showerror(title="ERROR",message="Please fill in all the data !!!")
+                                add_data.deiconify()
+
+                            else:
+                                Questions_Options.append({"Question":Question,"Option":[Option1,Option2,Option3,Option4,Correct_Option]})
+                                messagebox.showinfo(title="Success",message="Data saved successfully")
+                                add_data.deiconify()
+
+                        def exit ():
+                            '''edits the questions on the binary file'''
+
+                            with open ('Quiz.dat','rb') as f:
+
+                                f_alt=open('Tempfile.dat','wb')
+                        
+                                while True:
+                                         
+                                    try:
+                                        data=p.load(f)
+                                              
+                                        if cate in data:
+                                                   
+                                            p.dump({cate:Questions_Options},f_alt)
+
+                                        else:
+
+                                            p.dump(data,f_alt)
+
+                                    except:
+                                             
+                                        break
+
+                                f_alt.close()
+
+                            
+                            with open ('Quiz.dat','wb') as f:
+
+                                f_alt=open('Tempfile.dat','rb')
+                                     
+                                while True:
+
+                                    try:
+
+                                        data=p.load(f_alt)
+                                        p.dump(data,f)
+
+                                    except:
+                                             
+                                        break
+
+                                f_alt.close()
+      
+                            load_questions_page.destroy()
+
+                        add_data=Toplevel(load_questions_page)
+                
+                        add_data.state('zoomed')
+                        add_data.title("Enter Question and Answers")
+                        add_data.config(bg="Black")   
+                        Label(add_data,text="Enter Question",
+                                font=('comic sans',35,'bold'),
+                                fg='White',bg="Black").pack(pady=25)
+                                                
+                        question=Entry(add_data,font=("arial",25),fg='white',bg='black')
+                        question.pack(pady=20)
+
+                        Label(add_data,text="Enter Options",
+                                font=('comic sans',35,'bold'),
+                                fg='White',bg="Black").pack(pady=15)
+                                        
+                        frame_options=Frame(add_data,width=800,bg='black')
+                                                
+                        option1=Entry(frame_options,font=("arial",25),fg='white',bg='black')
+                        option2=Entry(frame_options,font=("arial",25),fg='white',bg='black')
+                        option3=Entry(frame_options,font=("arial",25),fg='white',bg='black')
+                        option4=Entry(frame_options,font=("arial",25),fg='white',bg='black')
+
+                        chk1=IntVar()
+                        chk2=IntVar()
+                        chk3=IntVar()
+                        chk4=IntVar()
+
+                        option1_chk=Checkbutton(frame_options,font=("arial",25),bg='black',variable=chk1,onvalue=1,offvalue=0)
+                        option2_chk=Checkbutton(frame_options,font=("arial",25),bg='black',variable=chk2,onvalue=1,offvalue=0)
+                        option3_chk=Checkbutton(frame_options,font=("arial",25),bg='black',variable=chk3,onvalue=1,offvalue=0)
+                        option4_chk=Checkbutton(frame_options,font=("arial",25),bg='black',variable=chk4,onvalue=1,offvalue=0)
+
+                        option1.grid(row=1,columnspan=20,column=2,padx=10,pady=10)
+                        option2.grid(row=2,columnspan=20,column=2,padx=10,pady=10)
+                        option3.grid(row=3,columnspan=20,column=2,padx=10,pady=10)
+                        option4.grid(row=4,columnspan=20,column=2,padx=10,pady=10)
+
+                        option1_chk.grid(row=1,columnspan=120,column=40)
+                        option2_chk.grid(row=2,columnspan=120,column=40)
+                        option3_chk.grid(row=3,columnspan=120,column=40)
+                        option4_chk.grid(row=4,columnspan=120,column=40)
+
+
+                        frame_options.pack(pady=25)
+
+                        frame=Frame(add_data,bg='black',width=300)
+                        frame.pack(pady=50)
+
+
+                        Button(frame,text='Next Page',font=('comic sans',20),
+                                        padx=20,pady=5,fg='white',bg='black',
+                                        activeforeground='white',activebackground='black',
+                                        relief=RAISED,bd=10,command=next_page).pack(side=RIGHT,padx=100)
+                                
+                        save_button=Button(frame,text='Save',font=('comic sans',20),
+                                        padx=20,pady=5,fg='white',bg='black',
+                                        activeforeground='white',activebackground='black',
+                                        relief=RAISED,bd=10,command=save)
+                        save_button.pack(side=RIGHT,padx=100)
+                                
+                        Button(frame,text='Exit',font=('comic sans',20),
+                                        padx=20,pady=5,fg='white',bg='black',
+                                        activeforeground='white',activebackground='black',
+                                        relief=RAISED,bd=10,command=exit).pack(side=LEFT,padx=100)
+
+                        add_data.mainloop()
+
+                    load_questions_page.state('zoomed')
+                    load_questions_page.title("Enter questions")
+                    load_questions_page.config(bg="Black")
+
+                    Label(load_questions_page,text="Click the button to start editing",
+                            font=('gabriola',60),
+                            fg='White',bg="Black",pady=20).pack(pady=15)
+
+                    Button(load_questions_page,text='Start',font=('arial',25),
+                    padx=10,fg='white',bg='black',
+                    activeforeground='white',activebackground='black',
+                    relief=RAISED,bd=10,command=next_page).pack(pady=50)
+
+                    load_questions_page.mainloop()
+
+                cate=category.get()
+
+                with open ('Category_list','r') as f:
+                    
+                    c=0
+                    for categories in f:
+
+                        if cate==categories.rstrip('\n'):
+                            c+=1
+                            break
+
+                    if c!=0:
+                                    
+                        edit_questions.destroy()
+                        edit_page.destroy()
+                        load_questions_edit()
+                            
+                    else:
+                                    
+                        messagebox.showerror(title="ERROR",message='Category doesnt exist')
+                        edit_questions.deiconify()
+                                
+                            
+            edit_questions.state('zoomed')
+            edit_questions.title("Change category")
+            edit_questions.config(bg="Black")
+
+            Label(edit_questions,text="Enter category name to edit",
+            font=('gabriola',60),
+            fg='White',bg="Black",pady=20).pack(pady=15)
+
+            category=Entry(edit_questions,font=("arial",25),fg='white',bg='black')
+            category.pack(pady=15)
+
+            Button(edit_questions,text='Change',font=('arial',25),
+                    padx=10,fg='white',bg='black',
+                    activeforeground='white',activebackground='black',
+                    relief=RAISED,bd=10,command=change).pack(pady=50)
+
+        
+            edit_questions.mainloop()  
+
+        def Edit_category ():
+            '''Takes user to a page where he has to enter the old and new name of the category to edit'''
+             
+            edit_category=Toplevel()
+
+            def change ():
+                
+                old=old_category.get()
+                new=new_category.get()
+
+                f_alt=open('Tempfile.dat','wb')
+                with open ('Quiz.dat','rb') as f:
+        
+                    c=0
+                    while True:
+                            try:
+                                data=p.load(f)
+                                if old in data:
+                                    new_data={}
+                                    value=data[old]
+                                    new_data[new]=value
+                                    p.dump(new_data,f_alt)
+                                    c+=1
+                                else:
+                                    p.dump(data,f_alt)
+                                     
+                            except :
+                                    if c!=0:
+                                        messagebox.showinfo(title="Success",message='Category Name changed Sucessfully')
+                                        edit_category.destroy()
+                                        edit_page.destroy()
+                                    else:
+                                        messagebox.showerror(title="ERROR",message='Category doesnt exist')
+                                        edit_category.deiconify()
+                                    break
+                f_alt.close()
+
+                f_alt=open('Tempfile.dat','rb')
+                f=open('Quiz.dat','wb')
+
+                while True:
+                        
+                        try:
+                            data=p.load(f_alt)
+                            p.dump(data,f)
+
+                        except:
+                            break
+
+                f_alt.close()
+                f.close()
+
+                with open ('Category_list','r') as f:
+                        
+                        data=f.readlines()
+
+                with open ('Tempfile','w') as f:
+                        
+                        for categories in data:
+
+                            if categories == old+'\n':
+                                 
+                                f.write(new+'\n')
+
+                            else:
+                                 
+                                 f.write(categories)
+                                 
+
+                f_alt=open('Tempfile','r')
+                f=open('Category_list','w')
+
+                data=f_alt.readlines()
+
+                for i in data:
+                     f.write(i)
+
+                f_alt.close()
+                f.close()
+
+                with open('Scoresheet.csv', 'r', newline="") as f:
+
+                    L = []
+                    reader = csv.reader(f)
+                    rows = list(reader)  
+
+                    
+                    for row in rows:
+                        if old in row:
+                            edit = row.index(old)
+                            break
+
+
+                    chk = True
+                    for row in rows:
+                        if chk:
+                            row[edit] = new
+                            chk = False
+                        else:
+                            row[edit] = None  
+                        L.append(row)
+
+                with open('Scoresheet.csv', 'w', newline="") as f:
+                    writer = csv.writer(f)
+                    writer.writerows(L)
+
+            edit_category.state('zoomed')
+            edit_category.title("Change category")
+            edit_category.config(bg="Black")
+
+            Label(edit_category,text="Enter category name to edit",
+            font=('gabriola',60),
+            fg='White',bg="Black",pady=20).pack(pady=15)
+
+            old_category=Entry(edit_category,font=("arial",25),fg='white',bg='black')
+            old_category.pack(pady=15)
+
+            Label(edit_category,text="Enter new category name",
+            font=('gabriola',60),
+            fg='White',bg="Black",pady=20).pack(pady=15)
+
+            new_category=Entry(edit_category,font=("arial",25),fg='white',bg='black')
+            new_category.pack(pady=10)
+
+            Button(edit_category,text='Change',font=('arial',25),
+                padx=10,fg='white',bg='black',
+                activeforeground='white',activebackground='black',
+                relief=RAISED,bd=10,command=change).pack(pady=50)
+
+            edit_category.mainloop()
+
+        edit_page.state('zoomed')
+        edit_page.title("Editing page")
+        edit_page.config(bg="Black")
+
+
+        Label(edit_page,text="Choose your option ",
+            font=('impact',60,'bold'),
+            fg='White',bg="Black",pady=50).pack(pady=75)
+
+        Button(edit_page,text='Edit Category',font=('arial',25),
+                padx=100,fg='white',bg='black',
+                activeforeground='white',activebackground='black',
+                relief=RAISED,bd=10,command=Edit_category).pack(pady=15)
+        
+        Button(edit_page,text='Edit Questions',font=('arial',25),
+                padx=100,fg='white',bg='black',
+                activeforeground='white',activebackground='black',
+                relief=RAISED,bd=10,command=Edit_questions).pack(pady=15)
+
+        Button(edit_page,text='Back',font=('arial',25),
+                padx=100,fg='white',bg='black',
+                activeforeground='white',activebackground='black',
+                relief=RAISED,bd=10,command=edit_page.destroy).pack(pady=60)
+
+        edit_page.mainloop()
+
+    def Delete_category ():
+        '''Takes user to a page where he has to type the category name and then proceed to delete it'''
+
+        delete_category=Toplevel()
+
+        def delete (Key):
+            '''Deletes a category from the Quiz'''
+
+            with open ('Quiz.dat','rb') as f:
+
+                f_alt=open('Tempfile.dat','wb')
+                c=0
+                while True:
+                        try:
+                            data=p.load(f)
+                            if Key not in data:
+                                p.dump(data,f_alt)
+                            else:
+                                c+=1
+                                
+                        except :
+                                if c!=0:
+                                    messagebox.showinfo(title="Success",message='Category deleted Sucessfully')
+                                    delete_category.destroy()
+                                else:
+                                    messagebox.showerror(title="ERROR",message="Category doesn't exist ! ")
+                                    delete_category.deiconify()
+                                break
+                f_alt.close()
+
+                f_alt=open('Tempfile.dat','rb')
+                f=open('Quiz.dat','wb')
+
+                while True:
+                        
+                        try:
+                            data=p.load(f_alt)
+                            p.dump(data,f)
+
+                        except:
+                            break
+
+                f_alt.close()
+                f.close()
+
+                with open ('Category_list','r') as f:
+                        
+                        data=f.readlines()
+
+                with open ('Tempfile','w') as f:
+                        
+                        for categories in data:
+
+                            if categories!=Key+'\n':
+                                 
+                                f.write(categories)
+                                 
+
+                f_alt=open('Tempfile','r')
+                f=open('Category_list','w')
+
+                data=f_alt.readlines()
+                for i in data:
+                    f.write(i)
+
+                f_alt.close()
+                f.close()
+
+                try:
+
+                    with open('Scoresheet.csv', 'r', newline="") as f:
+
+                        data = []
+                        reader = csv.reader(f)
+
+                        # Read the header row to find the index of the Key column
+                        header = next(reader)
+                        if Key in header:
+                            Index = header.index(Key)
+                
+                        # Append modified header to data
+                        modified_header = [col for col in header if col != Key]
+                        data.append(modified_header)
+
+                        # Process the remaining rows
+                        for rows in reader:
+                            L = []
+                            for column in range(len(rows)):
+                                if column != Index:
+                                    L.append(rows[column])
+                            data.append(L)
+
+                    with open('Scoresheet.csv', 'w', newline="") as f:
+                        writer = csv.writer(f)
+                        writer.writerows(data)
+
+                except:
+
+                    messagebox.showerror(title='ERROR',message='Category doesnt exist')
+
+                        
+        delete_category.state('zoomed')
+        delete_category.title("Select Category")
+        delete_category.config(bg="Black")
+
+        Label(delete_category,text="Enter the name of the category to be deleted"
+              ,font=('impact',60,'bold'),
+                    fg='White',bg="Black",pady=50).pack(pady=75)
+        
+        deletion_box=Entry(delete_category,font=("arial",25),fg='white',bg='black')
+        deletion_box.pack(pady=60)
+
+        Button(delete_category,text='Delete',font=('arial',25),
+                padx=100,fg='white',bg='black',
+                activeforeground='white',activebackground='black',
+                relief=RAISED,bd=10,command=lambda:delete(deletion_box.get())).pack(pady=15)
+        
+        Button(delete_category,text='Back',font=('arial',25),
+                padx=100,fg='white',bg='black',
+                activeforeground='white',activebackground='black',
+                relief=RAISED,bd=10,command=delete_category.destroy).pack(pady=15)
+        
+        delete_category.mainloop()
+
+    def Access_Player_Data ():
+        '''Creates page where QuizMaster has to enter the name of the player to view his data '''
+
+        access_data=Toplevel()
+
+        access_data.state('zoomed')
+        access_data.title("Home Page")
+        access_data.config(bg="Black")
+
+        header_data = []
+        with open('Scoresheet.csv', 'r') as f:
+            reader = csv.reader(f)
+            header = next(reader)
+            header_data.extend(header)
+        
+        table = ttk.Treeview(access_data, columns=header_data, show='headings')
+        for header in header_data:
+            table.heading(header, text=header)
+            table.column(header, width=200)
+        
+        def read_from_csv():
+            items = []
+            with open('Scoresheet.csv', 'r') as csvfile:
+                reader = csv.reader(csvfile)
+                next(reader)  # Skip the header row
+                for row in reader:
+                    items.append(row)
+            return items
+        
+        items = read_from_csv()
+        for item in items:
+            table.insert('', 'end', values=item)
+        
+        table.place(x=0, y=135)
+
+        scroll=ttk.Scrollbar(access_data,orient='vertical',command=table.yview)
+        scroll.pack(side='right',fill='y')
+        table.configure(yscrollcommand=scroll.set)
+        table.pack(expand=True,fill='both')
+
+
+        #Label(access_data,text='Coming soon....',font=('arial',60,'bold'),bg='black',fg='white').place(x=600,y=350)
+
+        access_data.mainloop()
+
+    def logout ():
+        '''Logs the user out of the program'''
+
+        quizmaster_home_page.destroy()
+        Start_Up()
+    
+    quizmaster_home_page.state('zoomed')
+    quizmaster_home_page.title("Home Page")
+    quizmaster_home_page.config(bg="Black")    
+    logo=PhotoImage(file='Logo.png')
+    Full_Logo=PhotoImage(file='Full_logo.png')
+    quizmaster_home_page.iconphoto(True,logo)
+
+    label=Label(quizmaster_home_page,
+                image=Full_Logo,compound='bottom',
+                fg='White',bg="Black")
+    
+    label.pack(pady=15)
+
+    button1=Button(quizmaster_home_page,text='Create Category',font=('arial',25),
+                padx=70,fg='white',bg='black',
+                activeforeground='white',activebackground='black',
+                relief=RAISED,bd=10,command=Create)
+    button2=Button(quizmaster_home_page,text='Edit Quiz',font=('arial',25),
+                padx=120,fg='white',bg='black',
+                activeforeground='white',activebackground='black',
+                relief=RAISED,bd=10,command=Edit)
+    button3=Button(quizmaster_home_page,text='Delete Category',font=('arial',25),
+                padx=72,fg='white',bg='black',
+                activeforeground='white',activebackground='black',
+                relief=RAISED,bd=10,command=Delete_category)
+    button4=Button(quizmaster_home_page,text='Access Player Data',font=('arial',25),
+                padx=45,fg='white',bg='black',
+                activeforeground='white',activebackground='black',
+                relief=RAISED,bd=10,command=Access_Player_Data)
+    button5=Button(quizmaster_home_page,text='Logout',font=('arial',25),
+                padx=137,fg='white',bg='black',
+                activeforeground='white',activebackground='black',
+                relief=RAISED,bd=10,command=logout)
+    
+    button1.pack(pady=6)
+    button2.pack(pady=6)
+    button3.pack(pady=6)
+    button4.pack(pady=6)
+    button5.pack(pady=6)
+
+    quizmaster_home_page.mainloop()
+
+Start_Up ()
